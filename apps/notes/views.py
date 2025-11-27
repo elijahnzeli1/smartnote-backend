@@ -2,17 +2,41 @@
 Views for note operations.
 """
 import logging
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django.db.models import Q
-from .models import Note
-from .serializers import NoteSerializer, NoteCreateSerializer, NoteSummarySerializer
+import csv
+import json
+from io import StringIO
+from rest_framework import viewsets, status # type: ignore
+from rest_framework.decorators import action # type: ignore
+from rest_framework.response import Response # type: ignore
+from rest_framework.permissions import IsAuthenticated # type: ignore
+from django.http import HttpResponse # type: ignore
+from django.db.models import Q # type: ignore
+from .models import Note, Tag
+from .serializers import NoteSerializer, NoteCreateSerializer, NoteSummarySerializer, TagSerializer
 from .services.gemini_service import get_summarizer
 from core.exceptions import AIServiceException
 
 logger = logging.getLogger(__name__)
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing tags.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = TagSerializer
+    
+    def get_queryset(self):
+        """
+        Return tags for the current user only.
+        """
+        return Tag.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        """
+        Create a new tag for the current user.
+        """
+        serializer.save(user=self.request.user)
 
 
 class NoteViewSet(viewsets.ModelViewSet):
@@ -32,9 +56,9 @@ class NoteViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """
         Return notes for the current user only.
-        Supports optional search query parameter.
+        Supports optional search and tag filtering.
         """
-        queryset = Note.objects.filter(user=self.request.user)
+        queryset = Note.objects.filter(user=self.request.user).prefetch_related('tags')
         
         # Optional search functionality
         search = self.request.query_params.get('search', None)
@@ -42,6 +66,11 @@ class NoteViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(
                 Q(title__icontains=search) | Q(content__icontains=search)
             )
+        
+        # Optional tag filtering
+        tag_id = self.request.query_params.get('tag', None)
+        if tag_id:
+            queryset = queryset.filter(tags__id=tag_id)
         
         return queryset
     
@@ -127,3 +156,95 @@ class NoteViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+    
+    @action(detail=False, methods=['get'])
+    def export(self, request):
+        """
+        Export notes in various formats.
+        
+        GET /notes/export/?format=json|csv|markdown
+        
+        Query parameters:
+        - format: Export format (json, csv, markdown). Default: json
+        - search: Optional search query to filter notes
+        - tag: Optional tag ID to filter notes
+        """
+        export_format = request.query_params.get('format', 'json').lower()
+        
+        # Get filtered notes
+        notes = self.get_queryset()
+        
+        if export_format == 'json':
+            return self._export_json(notes)
+        elif export_format == 'csv':
+            return self._export_csv(notes)
+        elif export_format == 'markdown':
+            return self._export_markdown(notes)
+        else:
+            return Response(
+                {'error': 'Invalid format. Use json, csv, or markdown.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    def _export_json(self, notes):
+        """Export notes as JSON."""
+        serializer = NoteSerializer(notes, many=True)
+        response = HttpResponse(
+            json.dumps(serializer.data, indent=2),
+            content_type='application/json'
+        )
+        response['Content-Disposition'] = 'attachment; filename="notes_export.json"'
+        return response
+    
+    def _export_csv(self, notes):
+        """Export notes as CSV."""
+        output = StringIO()
+        writer = csv.writer(output)
+        
+        # Write header
+        writer.writerow(['ID', 'Title', 'Content', 'Summary', 'Tags', 'Created At', 'Updated At'])
+        
+        # Write data
+        for note in notes:
+            tags = ', '.join([tag.name for tag in note.tags.all()])
+            writer.writerow([
+                note.id,
+                note.title,
+                note.content,
+                note.summary or '',
+                tags,
+                note.created_at.isoformat(),
+                note.updated_at.isoformat()
+            ])
+        
+        response = HttpResponse(output.getvalue(), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="notes_export.csv"'
+        return response
+    
+    def _export_markdown(self, notes):
+        """Export notes as Markdown."""
+        output = StringIO()
+        
+        output.write("# My Notes Export\n\n")
+        output.write(f"Total notes: {notes.count()}\n\n")
+        output.write("---\n\n")
+        
+        for note in notes:
+            output.write(f"## {note.title}\n\n")
+            output.write(f"**Created:** {note.created_at.strftime('%Y-%m-%d %H:%M')}\n\n")
+            
+            if note.tags.exists():
+                tags = ', '.join([f"`{tag.name}`" for tag in note.tags.all()])
+                output.write(f"**Tags:** {tags}\n\n")
+            
+            output.write(f"{note.content}\n\n")
+            
+            if note.summary:
+                output.write(f"### Summary\n\n")
+                output.write(f"*{note.summary}*\n\n")
+            
+            output.write("---\n\n")
+        
+        response = HttpResponse(output.getvalue(), content_type='text/markdown')
+        response['Content-Disposition'] = 'attachment; filename="notes_export.md"'
+        return response
