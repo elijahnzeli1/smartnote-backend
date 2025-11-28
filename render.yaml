@@ -29,7 +29,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.13.0
       - key: CORS_ALLOWED_ORIGINS
-        sync: false
+        value: https://smartnote-frontend.vercel.app
 
 databases:
   - name: smartnotes-db
