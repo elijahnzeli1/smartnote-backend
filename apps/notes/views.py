@@ -221,7 +221,15 @@ class NoteViewSet(viewsets.ModelViewSet):
         Create a new note and optionally generate summary.
         """
         auto_summarize = serializer.validated_data.pop('auto_summarize', True)
+        # Extract tags before saving (ManyToMany fields need special handling)
+        tags_data = serializer.validated_data.pop('tags', [])
+        
+        # Create the note
         note = serializer.save(user=self.request.user)
+        
+        # Now set the tags (ManyToMany relationship requires instance to exist first)
+        if tags_data:
+            note.tags.set(tags_data)
         
         if auto_summarize:
             try:
@@ -241,8 +249,15 @@ class NoteViewSet(viewsets.ModelViewSet):
         note = self.get_object()
         old_content = note.content
         
+        # Extract tags if present
+        tags_data = serializer.validated_data.pop('tags', None)
+        
         # Save the updated note
         note = serializer.save()
+        
+        # Update tags if provided
+        if tags_data is not None:
+            note.tags.set(tags_data)
         
         # If content changed, clear the old summary
         if old_content != note.content:
