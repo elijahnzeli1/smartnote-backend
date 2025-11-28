@@ -445,9 +445,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support & Contact
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/SmartNoteAPI/issues)
+- **Issues**: [GitHub Issues](https://github.com/elijahnzeli1/SmartNoteAPI/issues)
 - **Documentation**: See `/docs` folder for detailed guides
-- **Email**: your.email@example.com
+- **Email**: elijahnzeli924@gmail.com
 
 ## 🗺️ Roadmap
 
