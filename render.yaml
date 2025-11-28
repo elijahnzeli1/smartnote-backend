@@ -10,7 +10,7 @@ services:
       pip install -r requirements/prod.txt
       python manage.py collectstatic --noinput
       python manage.py migrate
-    startCommand: cd backend && gunicorn smartnotes.wsgi:application
+    startCommand: gunicorn smartnotes.wsgi:application
     envVars:
       - key: DJANGO_SECRET_KEY
         sync: false
