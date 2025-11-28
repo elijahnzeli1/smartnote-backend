@@ -1,9 +1,9 @@
 """
 URL configuration for smartnotes project.
 """
-from django.contrib import admin
-from django.urls import path, include
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django.contrib import admin # type: ignore
+from django.urls import path, include # type: ignore
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView # type: ignore
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,6 +14,6 @@ urlpatterns = [
     
     # API endpoints
     path('api/auth/', include('apps.users.urls')),
-    path('api/notes/', include('apps.notes.urls')),
+    path('api/', include('apps.notes.urls')),  # Changed to just 'api/' to avoid duplication
 ]
 
