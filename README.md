@@ -74,7 +74,7 @@ frontend/
 
 - **Python**: 3.11 or higher
 - **Node.js**: 18 or higher
-- **PostgreSQL**: 14 or higher (SQLite for development)
+- **PostgreSQL**: 14 or higher 
 - **Google API Key**: For Gemini AI integration
 
 ## 🚀 Getting Started
@@ -106,8 +106,8 @@ frontend/
    DJANGO_DEBUG=True
    DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
    
-   # Database (SQLite for development)
-   DATABASE_URL=sqlite:///db.sqlite3
+   # Database (PosrgreSQL for development)
+   DATABASE_URL=postgresql://username:password@localhost:5432/smartnotes_dev
    # For PostgreSQL: postgresql://username:password@localhost:5432/smartnotes_dev
    
    # Google Gemini API
@@ -237,8 +237,7 @@ npm test
 | Django | 5.0 | Web framework |
 | Django REST Framework | 3.14+ | REST API framework |
 | djangorestframework-simplejwt | 5.3+ | JWT authentication |
-| PostgreSQL | 14+ | Production database |
-| SQLite | 3 | Development database |
+| PostgreSQL | 14+ | Production database | Development database |
 | Google Generative AI | 0.3+ | Gemini AI integration |
 | drf-spectacular | 0.26+ | API documentation |
 | pytest | 7.4+ | Testing framework |
@@ -446,9 +445,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support & Contact
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/SmartNoteAPI/issues)
+- **Issues**: [GitHub Issues](https://github.com/elijahnzeli1/SmartNoteAPI/issues)
 - **Documentation**: See `/docs` folder for detailed guides
-- **Email**: your.email@example.com
+- **Email**: elijahnzeli924@gmail.com
 
 ## 🗺️ Roadmap
 
