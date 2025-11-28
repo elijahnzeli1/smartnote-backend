@@ -135,7 +135,7 @@ LOG_LEVEL=INFO
 Create `.env.production`:
 
 ```env
-NEXT_PUBLIC_API_URL=https://your-backend-domain.com/api
+NEXT_PUBLIC_API_URL=https://smartnote-backend-zr0c.onrender.com/api
 NODE_ENV=production
 ```
 

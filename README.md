@@ -358,7 +358,7 @@ SmartNoteAPI/
 
 2. **Set environment variable**
    ```env
-   NEXT_PUBLIC_API_URL=https://your-backend-domain.com/api
+   NEXT_PUBLIC_API_URL=https://smartnote-backend-zr0c.onrender.com/api
    ```
 
 3. **Deploy** - Automatically deploys on push to main branch
