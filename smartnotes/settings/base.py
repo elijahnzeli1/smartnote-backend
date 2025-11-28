@@ -5,7 +5,7 @@ These settings are common to all environments.
 import os
 from pathlib import Path
 from datetime import timedelta
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore
 
 # Load environment variables
 load_dotenv()
@@ -144,7 +144,7 @@ SPECTACULAR_SETTINGS = {
 
 # Gemini AI Configuration
 GEMINI_API_KEY = os.getenv('GOOGLE_API_KEY', '')
-GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
+GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
 GEMINI_MAX_RETRIES = 3
 GEMINI_TIMEOUT = 30  # seconds
 

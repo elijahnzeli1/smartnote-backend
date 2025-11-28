@@ -113,14 +113,38 @@ Summary:"""
                 prompt,
                 generation_config=genai.types.GenerationConfig(
                     temperature=0.3,  # Lower temperature for more focused summaries
-                    max_output_tokens=200,
+                    max_output_tokens=800,  # Increased to handle longer summaries
                 )
             )
             
-            if not response or not response.text:
-                raise AIServiceException("Empty response from Gemini API")
+            # Check if response has valid candidates with content
+            if not response or not response.candidates:
+                raise ValueError("No response candidates returned from Gemini API")
             
-            return response.text.strip()
+            # Get the first candidate
+            candidate = response.candidates[0]
+            
+            # Check finish_reason before accessing content
+            finish_reason = candidate.finish_reason if hasattr(candidate, 'finish_reason') else 0
+            
+            # If finish_reason is 2 (MAX_TOKENS) and no content, the token limit is too small
+            # Fall back to extractive summary
+            if finish_reason == 2 and (not candidate.content or not candidate.content.parts):
+                logger.warning("Response truncated due to MAX_TOKENS, using extractive fallback")
+                # Don't raise error, let it fall through to the extractive summary in generate_summary
+                raise ValueError("Response truncated, using fallback")
+            
+            # Check if candidate has content parts
+            if not candidate.content or not candidate.content.parts:
+                raise ValueError(f"No content in response. Finish reason: {finish_reason}")
+            
+            # Extract text from the first part
+            summary = candidate.content.parts[0].text
+            
+            if not summary or not summary.strip():
+                raise ValueError("Empty summary generated")
+            
+            return summary.strip()
             
         except Exception as e:
             logger.error(f"Gemini API call failed: {str(e)}")
