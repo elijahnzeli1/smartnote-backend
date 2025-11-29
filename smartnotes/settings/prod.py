@@ -6,7 +6,8 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+# Parse ALLOWED_HOSTS correctly - filter empty strings
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '').split(',') if host.strip()]
 
 # Database - PostgreSQL for production
 DATABASES = {
@@ -17,7 +18,14 @@ DATABASES = {
 }
 
 # CORS settings for production
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv('CORS_ALLOWED_ORIGINS', '').split(',') if origin.strip()]
+CORS_ALLOW_CREDENTIALS = True
+
+# CSRF settings - must include both backend and frontend URLs
+CSRF_TRUSTED_ORIGINS = [
+    'https://smartnote-backend-zr0c.onrender.com',
+    'https://smartnote-frontend.vercel.app',
+]
 
 # Security settings
 SECURE_SSL_REDIRECT = True
