@@ -25,8 +25,17 @@ SECRET_KEY = 'django-insecure-=%z&6ete49t7y#ft9-*ey5wb1+dirw3)@b-%rws9(z7lg@)!@=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "smartnote-backend-zr0c.onrender.com",
+    "smartnote-frontend.vercel.app",
+    "localhost",
+    "127.0.0.1"
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://smartnote-backend-zr0c.onrender.com",
+    "https://smartnote-frontend.vercel.app",
+]
 
 # Application definition
 
