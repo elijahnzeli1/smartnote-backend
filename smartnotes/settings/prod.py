@@ -6,8 +6,13 @@ from .base import *
 
 DEBUG = False
 
-# Parse ALLOWED_HOSTS correctly - filter empty strings
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '').split(',') if host.strip()]
+# Parse ALLOWED_HOSTS correctly - filter empty strings, with fallback
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+else:
+    # Fallback if env var not set - add your Render URL
+    ALLOWED_HOSTS = ['smartnote-backend-zr0c.onrender.com']
 
 # Database - PostgreSQL for production
 DATABASES = {
