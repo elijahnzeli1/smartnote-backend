@@ -6,8 +6,8 @@ from .base import *
 
 DEBUG = False
 
-# Hardcoded ALLOWED_HOSTS for Render - env var not working
-ALLOWED_HOSTS = ['smartnote-backend-zr0c.onrender.com', '.onrender.com']
+# Temporary wildcard to confirm this file is being loaded
+ALLOWED_HOSTS = ['*']
 
 # Database - PostgreSQL for production
 DATABASES = {
